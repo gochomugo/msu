@@ -6,6 +6,13 @@
 set -e
 
 
+# release script is not supported on macos
+if [[ "$(uname --kernel-name)" == "Darwin" ]] ; then
+  echo "release script is not supported on macos" >&2
+  exit 1
+fi
+
+
 # modules
 msu_require "console"
 msu_require "metadata"
