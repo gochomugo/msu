@@ -63,3 +63,33 @@ jobs:
         env:
           TERM: xterm
         run: make test
+
+  test-bash-compat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: bash:${{ matrix.bash }}
+    strategy:
+      fail-fast: false
+      matrix:
+        bash: ['4.0', '4.4', '5.0', '5.3']
+
+    steps:
+      - name: Install dependencies
+        run: apk add --no-cache git make ca-certificates
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install bats-core
+        uses: actions/checkout@v4
+        with:
+          repository: bats-core/bats-core
+          path: bats-core
+
+      - name: Print bash version
+        run: echo "${BASH_VERSION}"
+
+      - name: Run tests
+        run: make test.bash
