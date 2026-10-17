@@ -64,7 +64,17 @@ tar --create --gzip --file "${RELEASE_TARBALL}" "$(basename "${RELEASE_DIR}")"
 
 
 log "creating a new github release"
-hub release create -a "${RELEASE_TARBALL}" "${MSU_VERSION}"
+RELEASE_MESSAGE="${RELEASE_DIR}/release-message.txt"
+{
+  echo "msu v${MSU_VERSION}"
+  echo
+  # body of the release is the message of the annotated tag
+  git tag --list "${MSU_VERSION}" --format='%(contents)'
+} > "${RELEASE_MESSAGE}"
+hub release create \
+  --attach "${RELEASE_TARBALL}" \
+  --file "${RELEASE_MESSAGE}" \
+  "${MSU_VERSION}"
 
 
 success "New MSU release: v${MSU_VERSION}"
