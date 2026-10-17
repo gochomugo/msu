@@ -11,5 +11,5 @@
   # shellcheck disable=SC2016
   MSU_INSTALL_LOAD_STRING='# loading msu
 [[ "$(command -v msu)" ]] && . msu env'
-  MSU_VERSION="0.8.1"
+  MSU_VERSION="0.8.2"
 }

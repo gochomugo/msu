@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+
+## [0.8.2][0.8.2] - 2026-10-17
+
 Changed:
 
 * Replaced `wget` with `curl` for self upgrade.
@@ -135,3 +138,4 @@ This is the very first version of `msu`.
 [0.7.0]:https://github.com/GochoMugo/msu/releases/tag/0.7.0
 [0.8.0]:https://github.com/GochoMugo/msu/releases/tag/0.8.0
 [0.8.1]:https://github.com/GochoMugo/msu/releases/tag/0.8.1
+[0.8.2]:https://github.com/GochoMugo/msu/releases/tag/0.8.2
