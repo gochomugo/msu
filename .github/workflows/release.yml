@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "release/*"
+  workflow_dispatch:
+    inputs:
+      reset-cache:
+        description: 'Reset Homebrew cache'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Validate tag
+        run: |
+          case "${GITHUB_REF}" in
+            refs/tags/release/[0-9]*.[0-9]*.[0-9]*) exit 0 ;;
+            *) echo "tag must match release/x.y.z (semver): ${GITHUB_REF}" ; exit 1 ;;
+          esac
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew on Linux
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+      - name: Cache Homebrew packages
+        if: inputs.reset-cache != true
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/Homebrew
+          key: ${{ runner.os }}-brew-${{ hashFiles('Makefile') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-
+
+      - name: Install dependencies
+        run: make deps
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TERM: xterm
+        run: make release
