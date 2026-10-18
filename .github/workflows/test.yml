@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: apk add --no-cache curl git make ca-certificates
+        run: apk add --no-cache curl git make ca-certificates ncurses
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -92,4 +92,6 @@ jobs:
         run: echo "${BASH_VERSION}"
 
       - name: Run tests
+        env:
+          TERM: xterm
         run: make test.bash
