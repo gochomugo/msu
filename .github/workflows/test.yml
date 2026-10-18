@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: apk add --no-cache git make ca-certificates
+        run: apk add --no-cache curl git make ca-certificates
 
       - name: Checkout repository
         uses: actions/checkout@v4
