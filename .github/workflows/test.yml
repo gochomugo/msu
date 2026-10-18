@@ -108,7 +108,7 @@ jobs:
           path: bats-core
 
       - name: Print bash version
-        run: echo "${BASH_VERSION}"
+        run: bash --version
 
       - name: Run tests
         env:
