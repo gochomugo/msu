@@ -181,10 +181,10 @@ function is_semver_gt() {
   version1_major=$(get_major_version "${version1}")
   version2_major=$(get_major_version "${version2}")
 
-  if [[ "${version1_major}" -gt "${version2_major}" ]] ; then
+  if [ "${version1_major}" -gt "${version2_major}" ] ; then
     echo 0
     return 0
-  elif [[ "${version1_major}" -lt "${version2_major}" ]] ; then
+  elif [ "${version1_major}" -lt "${version2_major}" ] ; then
     echo 1
     return 1
   fi
@@ -194,10 +194,10 @@ function is_semver_gt() {
   version1_minor=$(get_minor_version "${version1}")
   version2_minor=$(get_minor_version "${version2}")
 
-  if [[ "${version1_minor}" -gt "${version2_minor}" ]] ; then
+  if [ "${version1_minor}" -gt "${version2_minor}" ] ; then
     echo 0
     return 0
-  elif [[ "${version1_minor}" -lt "${version2_minor}" ]] ; then
+  elif [ "${version1_minor}" -lt "${version2_minor}" ] ; then
     echo 1
     return 1
   fi
@@ -207,7 +207,7 @@ function is_semver_gt() {
   version1_patch=$(get_patch_version "${version1}")
   version2_patch=$(get_patch_version "${version2}")
 
-  if [[ "${version1_patch}" -gt "${version2_patch}" ]] ; then
+  if [ "${version1_patch}" -gt "${version2_patch}" ] ; then
     echo 0
     return 0
   fi
@@ -219,7 +219,7 @@ function is_semver_gt() {
 
 # checking if script is run as root/superuser.
 function is_superuser() {
-  [[ "$(id -u)" == "0" ]]
+  [ "$(id -u)" = "0" ]
 }
 
 

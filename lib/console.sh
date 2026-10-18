@@ -106,12 +106,12 @@ function ask() {
     declare -i charcount=0
     while IFS='' read -p "${prompt}" -r -s -n 1 char
     do
-        if [[ "${char}" == $'\0' ]]
+        if [ "${char}" = "" ]
         then
             break
         fi
         # Backspace
-        if [[ "${char}" == $'\177' ]]
+        if [ "${char}" = $'\177' ]
         then
           if [ "${charcount}" -gt 0 ] ; then
                 charcount=$((charcount-1))

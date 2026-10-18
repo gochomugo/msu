@@ -79,9 +79,11 @@ function msu_require() {
   )
 
   for resolved_path in "${resolved_paths[@]}" ; do
-      if [[ "${MSU_REQUIRE_LOCK}" =~ .*":${resolved_path}:".* ]]  > /dev/null ; then
-        return
-      fi
+      case "${MSU_REQUIRE_LOCK}" in
+        *":${resolved_path}:"*)
+          return
+          ;;
+      esac
       if [ ! -f "${resolved_path}" ] ; then
           continue
       fi
