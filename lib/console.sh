@@ -126,7 +126,7 @@ function ask() {
             password="${password}${char}"
         fi
     done
-    eval "${2}=\${password}"
+    printf -v "${2}" '%s' "${password}"
     echo
   fi
 }
