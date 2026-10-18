@@ -14,6 +14,7 @@ help:
 	@echo "  help			Show this help information"
 	@echo "  release		Draft new release"
 	@echo "  test			Run all tests"
+	@echo "  test.bash		Run unit tests under the bash in PATH"
 	@echo "  test.doc		Run tests on documentation"
 	@echo "  test.lint		Run linting tests"
 	@echo "  test.unit		Run unit tests"
@@ -61,6 +62,12 @@ release: clean doc
 # Run all tests.
 test: test.lint test.unit test.doc
 
+# Run unit tests under the bash currently in PATH.
+test.bash: test/test.*.sh
+	@make doc
+	@bash -c 'echo "**** test.bash ($${BASH_VERSION})"'
+	@PATH="$$(pwd)/bats-core/bin:$${PATH}" bats --print-output-on-failure --timing $?
+
 # Run tests on documentation.
 test.doc: doc
 	@echo "**** test.doc"
@@ -83,4 +90,4 @@ test.unit: test/test.*.sh
 	doc \
 	help \
 	release \
-	test test.doc test.lint test.unit
+	test test.bash test.doc test.lint test.unit

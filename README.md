@@ -24,7 +24,7 @@
 * [x] [easy installation](#installation)
 * [x] self upgrade
 * [x] small internal library
-* [x] tested
+* [x] tested on every bash release from 3.2 through 5.3
 * [x] supports external modules
 * [x] auto-loading aliases from modules
 * [x] manpages

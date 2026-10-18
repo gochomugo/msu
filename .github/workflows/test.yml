@@ -29,9 +29,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           # Add known hosts for common Git hosting services
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -63,3 +63,54 @@ jobs:
         env:
           TERM: xterm
         run: make test
+
+  test-bash-compat:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: bash:${{ matrix.bash }}
+    env:
+      GIT_CONFIG_COUNT: 1
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /__w/msu/msu
+      GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=accept-new
+    strategy:
+      fail-fast: false
+      matrix:
+        bash: ['3.2', '4.0', '4.1', '4.2', '4.3', '4.4', '5.0', '5.1', '5.2', '5.3']
+
+    steps:
+      - name: Install dependencies
+        run: apk add --no-cache curl git make ca-certificates ncurses gettext openssh-client pandoc
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          # Add known hosts for common Git hosting services
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install bats-core
+        uses: actions/checkout@v4
+        with:
+          repository: bats-core/bats-core
+          path: bats-core
+
+      - name: Print bash version
+        run: bash --version
+
+      - name: Run tests
+        env:
+          TERM: xterm
+        run: make test.bash
