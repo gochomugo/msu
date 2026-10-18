@@ -64,6 +64,7 @@ test: test.lint test.unit test.doc
 
 # Run unit tests under the bash currently in PATH.
 test.bash: test/test.*.sh
+	@make doc
 	@echo "**** test.bash ($${BASH_VERSION:-unknown})"
 	@PATH="$$(pwd)/bats-core/bin:$${PATH}" bats --print-output-on-failure --timing $?
 
