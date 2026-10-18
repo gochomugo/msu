@@ -29,9 +29,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           # Add known hosts for common Git hosting services
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -74,6 +74,7 @@ jobs:
       GIT_CONFIG_COUNT: 1
       GIT_CONFIG_KEY_0: safe.directory
       GIT_CONFIG_VALUE_0: /__w/msu/msu
+      GIT_SSH_COMMAND: ssh -o StrictHostKeyChecking=accept-new
     strategy:
       fail-fast: false
       matrix:
@@ -90,9 +91,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           # Add known hosts for common Git hosting services
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
