@@ -8,14 +8,25 @@ set -o errexit
 set -o nounset
 
 
+LIB="${LIB:-${HOME}/lib}"
+MARKER=" >>>"
+MSU_LIB="${LIB}/msu"
+PREVIOUS_LOAD_STRING=""
+
+
+if [ -f "${MSU_LIB}/metadata.sh" ] ; then
+  echo "${MARKER} loading existing metadata"
+  # shellcheck disable=SC1090,SC1091
+  source "${MSU_LIB}/metadata.sh"
+  PREVIOUS_LOAD_STRING="${MSU_INSTALL_LOAD_STRING:-}"
+fi
+
+
 BASHRC="${BASHRC:-${HOME}/.bashrc}"
 BIN="${BIN:-${HOME}/bin}"
-LIB="${LIB:-${HOME}/lib}"
 MAN="${MAN:-${HOME}/share/man}"
-MSU_LIB="${LIB}/msu"
 MSU_EXE="${BIN}/msu"
 MSU_MAN="${MAN}"
-MARKER=" >>>"
 
 
 function check_dep() {
@@ -49,6 +60,33 @@ function check_deps() {
   check_dep "tar" "self-upgrade"
   check_dep "tput" "formatting styles"
   check_dep "tr" "character translation"
+}
+
+
+function remove_bashrc_lines() {
+  if [ ! -f "${BASHRC}" ] ; then
+      return
+  fi
+  local removees="${1}"
+  local tmp="${BASHRC}.msu-migrate"
+  local line
+  local removee
+  local keep
+  while IFS='' read -r line || [ -n "${line}" ] ; do
+    keep=1
+    while IFS='' read -r removee || [ -n "${removee}" ] ; do
+      if [ "${line}" = "${removee}" ] ; then
+        keep=0
+        break
+      fi
+    done <<EOF
+${removees}
+EOF
+    if [ "${keep}" -eq 1 ] ; then
+      printf '%s\n' "${line}"
+    fi
+  done < "${BASHRC}" > "${tmp}"
+  mv "${tmp}" "${BASHRC}"
 }
 
 
@@ -120,6 +158,12 @@ echo "${MARKER} linking executable"
 mkdir -p "$(dirname "${MSU_EXE}")"
 rm -f "${MSU_EXE}"
 ln -sf "${MSU_LIB}"/msu.sh "${MSU_EXE}"
+
+
+if [ -n "${PREVIOUS_LOAD_STRING}" ] && [ "${PREVIOUS_LOAD_STRING}" != "${MSU_INSTALL_LOAD_STRING}" ] ; then
+  echo "${MARKER} removing outdated loader string from ${BASHRC}"
+  remove_bashrc_lines "${PREVIOUS_LOAD_STRING}"
+fi
 
 
 echo "${MARKER} make bash load msu into environment on start"
