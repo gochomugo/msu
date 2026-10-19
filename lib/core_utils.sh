@@ -251,11 +251,13 @@ function nuke() {
   yes_no "I want to nuke msu" || return 1
 
   local nuke_script="/tmp/nuke_msu.${RANDOM}"
+  local pattern_file="/tmp/nuke_msu.pattern.${RANDOM}"
+  printf '%s\n' "${MSU_INSTALL_LOAD_STRING}" > "${pattern_file}"
   {
     printf '%s\n' "printf '%s\n' '- removing load string from ~/.bashrc'"
     printf '%s\n' "cp ~/.bashrc /tmp/bashrc.msu"
-    printf '%s\n' "grep -v '${MSU_INSTALL_LOAD_STRING}' /tmp/bashrc.msu > ~/.bashrc"
-    printf '%s\n' "rm /tmp/bashrc.msu"
+    printf '%s\n' "grep -v -F -x -f '${pattern_file}' /tmp/bashrc.msu > ~/.bashrc"
+    printf '%s\n' "rm -f '${pattern_file}' /tmp/bashrc.msu"
     printf '%s\n' "printf '%s\n' '- removing external modules'"
     printf '%s\n' "rm -rf '${MSU_EXTERNAL_LIB}'"
     printf '%s\n' "printf '%s\n' '- removing core'"

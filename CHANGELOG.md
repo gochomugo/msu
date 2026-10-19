@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Fixed:
+
+* Nuking msu should remove the load string from .bashrc.
+
 
 ## [0.8.2][0.8.2] - 2026-10-17
 
