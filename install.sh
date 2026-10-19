@@ -27,6 +27,8 @@ BIN="${BIN:-${HOME}/bin}"
 MAN="${MAN:-${HOME}/share/man}"
 MSU_EXE="${BIN}/msu"
 MSU_MAN="${MAN}"
+EXPORT_MAN_PATH="export MANPATH=\"${MSU_MAN}\":\${MANPATH}"
+EXPORT_BIN_PATH="export PATH=\"${BIN}\":\${PATH}"
 
 
 function check_dep() {
@@ -95,14 +97,18 @@ check_deps
 
 
 echo "${MARKER} checking if ${BIN} is in \${PATH}"
-echo "${PATH}" | grep "${BIN}" > /dev/null || {
+if [ -f "${BASHRC}" ] && grep -F -q "${EXPORT_BIN_PATH}" "${BASHRC}" ; then
+  : # already added to ${BASHRC} by a previous run
+elif grep "${BIN}" <<< "${PATH}" > /dev/null ; then
+  : # already in \${PATH}
+else
   echo "${MARKER} ${BIN} not in path. Adding it to ${BASHRC}. You need to restart your terminal for this to take effect!"
   {
     echo ""
     echo "# added by msu"
-    echo "export PATH=\"${BIN}\":\${PATH}"
+    echo "${EXPORT_BIN_PATH}"
   } >> "${BASHRC}"
-}
+fi
 
 
 echo "${MARKER} loading metadata"
@@ -119,15 +125,19 @@ cp -r lib/* "${MSU_LIB}"
 
 
 echo "${MARKER} checking if ${MSU_MAN} is in \${MANPATH}"
-echo "${MANPATH:-}" | grep "${MSU_MAN}" > /dev/null || {
+if [ -f "${BASHRC}" ] && grep -F -q "${EXPORT_MAN_PATH}" "${BASHRC}" ; then
+  : # already added to ${BASHRC} by a previous run
+elif grep "${MSU_MAN}" <<< "${MANPATH:-}" > /dev/null ; then
+  : # already in \${MANPATH}
+else
   echo "${MARKER} ${MSU_MAN} not in manpath. Adding it to ${BASHRC}."
   echo "${MARKER} !! You need to restart your terminal for this to take effect!"
   {
     echo ""
     echo "# added by msu"
-    echo "export MANPATH=\"${MSU_MAN}\":\${MANPATH}"
+    echo "${EXPORT_MAN_PATH}"
   } >> "${BASHRC}"
-}
+fi
 
 
 # there are cases where manpages are not generated yet
