@@ -95,7 +95,7 @@ function install() {
     local module_name
     local remote_mark
 
-    remote_mark=$(echo "${dir}" | grep -Eo "[a-zA-Z0-9]+:" | grep -Eo "[^:]*" || true)
+    remote_mark=$(printf '%s\n' "${dir}" | grep -Eo "[a-zA-Z0-9]+:" | grep -Eo "[^:]*" || true)
     if [ "${remote_mark}" ] ; then
       # requires cloning
       local tmpdir
@@ -103,7 +103,7 @@ function install() {
       local version
       local url
       tmpdir="/tmp/.msu.clones"
-      remote_mark=$(echo "${remote_mark}" | tr '[:upper:]' '[:lower:]')
+      remote_mark=$(printf '%s\n' "${remote_mark}" | tr '[:upper:]' '[:lower:]')
       shorthand="${dir##*:}"
       version="${shorthand##*#}"
       if [ "${version}" == "${shorthand}" ] ; then
@@ -182,10 +182,10 @@ function is_semver_gt() {
   version2_major=$(get_major_version "${version2}")
 
   if [ "${version1_major}" -gt "${version2_major}" ] ; then
-    echo 0
+    printf '%s\n' 0
     return 0
   elif [ "${version1_major}" -lt "${version2_major}" ] ; then
-    echo 1
+    printf '%s\n' 1
     return 1
   fi
 
@@ -195,10 +195,10 @@ function is_semver_gt() {
   version2_minor=$(get_minor_version "${version2}")
 
   if [ "${version1_minor}" -gt "${version2_minor}" ] ; then
-    echo 0
+    printf '%s\n' 0
     return 0
   elif [ "${version1_minor}" -lt "${version2_minor}" ] ; then
-    echo 1
+    printf '%s\n' 1
     return 1
   fi
 
@@ -208,11 +208,11 @@ function is_semver_gt() {
   version2_patch=$(get_patch_version "${version2}")
 
   if [ "${version1_patch}" -gt "${version2_patch}" ] ; then
-    echo 0
+    printf '%s\n' 0
     return 0
   fi
 
-  echo 1
+  printf '%s\n' 1
   return 1
 }
 
@@ -235,10 +235,10 @@ function list_modules() {
     fi
     if [ -z "${is_header_printed}" ] ; then
       # shellcheck source=lib/format.sh
-      echo -e "${clr_white:?}external modules${clr_reset:?}"
+      printf '%b\n' "${clr_white:?}external modules${clr_reset:?}"
       is_header_printed=1
     fi
-    echo -e "\\t$(basename "${mod}")"
+    printf '%b\n' "\\t$(basename "${mod}")"
   done
 }
 
@@ -252,20 +252,20 @@ function nuke() {
 
   local nuke_script="/tmp/nuke_msu.${RANDOM}"
   {
-    echo "echo - removing load string from ~/.bashrc"
-    echo "cp ~/.bashrc /tmp/bashrc.msu"
-    echo "grep -v '${MSU_INSTALL_LOAD_STRING}' /tmp/bashrc.msu > ~/.bashrc"
-    echo "rm /tmp/bashrc.msu"
-    echo "echo - removing external modules"
-    echo "rm -rf '${MSU_EXTERNAL_LIB}'"
-    echo "echo - removing core"
-    echo "rm -rf '${MSU_LIB}'"
-    echo "echo - removing manpages"
-    echo "rm -rf ${MSU_INSTALL_MAN}/man1/msu*"
-    echo "rm -rf ${MSU_INSTALL_MAN}/man3/msu*"
-    echo "echo - removing executable"
-    echo "rm -f '${MSU_EXE}'"
-    echo "echo !! Just nuked msu !!"
+    printf '%s\n' "printf '%s\n' '- removing load string from ~/.bashrc'"
+    printf '%s\n' "cp ~/.bashrc /tmp/bashrc.msu"
+    printf '%s\n' "grep -v '${MSU_INSTALL_LOAD_STRING}' /tmp/bashrc.msu > ~/.bashrc"
+    printf '%s\n' "rm /tmp/bashrc.msu"
+    printf '%s\n' "printf '%s\n' '- removing external modules'"
+    printf '%s\n' "rm -rf '${MSU_EXTERNAL_LIB}'"
+    printf '%s\n' "printf '%s\n' '- removing core'"
+    printf '%s\n' "rm -rf '${MSU_LIB}'"
+    printf '%s\n' "printf '%s\n' '- removing manpages'"
+    printf '%s\n' "rm -rf ${MSU_INSTALL_MAN}/man1/msu*"
+    printf '%s\n' "rm -rf ${MSU_INSTALL_MAN}/man3/msu*"
+    printf '%s\n' "printf '%s\n' '- removing executable'"
+    printf '%s\n' "rm -f '${MSU_EXE}'"
+    printf '%s\n' "printf '%s\n' '!! Just nuked msu !!'"
   } > "${nuke_script}"
   # running the nuke script
   bash "${nuke_script}"
@@ -383,10 +383,10 @@ function show_metadata() {
   fi
   # shellcheck disable=SC1090
   source "${metadata_file}"
-  echo -e " ${clr_white}${1}${clr_reset}"
-  echo -e "    author\\t${clr_white}${author:?}${clr_reset}"
-  echo -e "    build\\t${clr_white}${build:?}${clr_reset}"
-  echo -e "    date\\t${clr_white}${date:?}${clr_reset}"
+  printf '%b\n' " ${clr_white}${1}${clr_reset}"
+  printf '%b\n' "    author\\t${clr_white}${author:?}${clr_reset}"
+  printf '%b\n' "    build\\t${clr_white}${build:?}${clr_reset}"
+  printf '%b\n' "    date\\t${clr_white}${date:?}${clr_reset}"
 }
 
 
@@ -511,6 +511,6 @@ function where() {
     error "module not found: ${1}"
     return 1
   fi
-  echo "${module_dir}"
+  printf '%s\n' "${module_dir}"
   return
 }

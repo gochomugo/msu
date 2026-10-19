@@ -15,7 +15,7 @@ PREVIOUS_LOAD_STRING=""
 
 
 if [ -f "${MSU_LIB}/metadata.sh" ] ; then
-  echo "${MARKER} loading existing metadata"
+  printf '%s\n' "${MARKER} loading existing metadata"
   # shellcheck disable=SC1090,SC1091
   source "${MSU_LIB}/metadata.sh"
   PREVIOUS_LOAD_STRING="${MSU_INSTALL_LOAD_STRING:-}"
@@ -33,7 +33,7 @@ EXPORT_BIN_PATH="export PATH=\"${BIN}\":\${PATH}"
 
 function check_dep() {
   command -v "${1}" > /dev/null 2>&1 || {
-    echo "\`${1}' is NOT available. It is required for: ${2}" > /dev/stderr
+    printf '%s\n' "\`${1}' is NOT available. It is required for: ${2}" > /dev/stderr
     exit 1
   }
 }
@@ -48,7 +48,6 @@ function check_deps() {
   check_dep "curl" "self-upgrade"
   check_dep "cut" "stream cutting"
   check_dep "dirname" "path manipulation"
-  check_dep "echo" "line printing"
   check_dep "git" "install, self-upgrade, module-install, metadata gen."
   check_dep "grep" "regexp matching"
   check_dep "id" "check user id"
@@ -56,6 +55,7 @@ function check_deps() {
   check_dep "mkdir" "directory creation"
   check_dep "mv" "file renaming"
   check_dep "popd" "pop directory from stack"
+  check_dep "printf" "line printing"
   check_dep "pushd" "push directory onto stack"
   check_dep "readlink" "handling symlinks"
   check_dep "rm" "file removal"
@@ -92,30 +92,30 @@ EOF
 }
 
 
-echo "${MARKER} checking if all dependencies are available"
+printf '%s\n' "${MARKER} checking if all dependencies are available"
 check_deps
 
 
-echo "${MARKER} checking if ${BIN} is in \${PATH}"
+printf '%s\n' "${MARKER} checking if ${BIN} is in \${PATH}"
 if [ -f "${BASHRC}" ] && grep -F -q "${EXPORT_BIN_PATH}" "${BASHRC}" ; then
   : # already added to ${BASHRC} by a previous run
 elif grep "${BIN}" <<< "${PATH}" > /dev/null ; then
   : # already in \${PATH}
 else
-  echo "${MARKER} ${BIN} not in path. Adding it to ${BASHRC}. You need to restart your terminal for this to take effect!"
+  printf '%s\n' "${MARKER} ${BIN} not in path. Adding it to ${BASHRC}. You need to restart your terminal for this to take effect!"
   {
-    echo ""
-    echo "# added by msu"
-    echo "${EXPORT_BIN_PATH}"
+    printf '%s\n' ""
+    printf '%s\n' "# added by msu"
+    printf '%s\n' "${EXPORT_BIN_PATH}"
   } >> "${BASHRC}"
 fi
 
 
-echo "${MARKER} loading metadata"
+printf '%s\n' "${MARKER} loading metadata"
 source lib/metadata.sh
 
 
-echo "${MARKER} copying library"
+printf '%s\n' "${MARKER} copying library"
 [ "${MSU_EXE}" == "${MSU_LIB}" ] && {
   MSU_LIB="${MSU_LIB}-lib"
 }
@@ -124,18 +124,18 @@ mkdir -p "${MSU_LIB}"
 cp -r lib/* "${MSU_LIB}"
 
 
-echo "${MARKER} checking if ${MSU_MAN} is in \${MANPATH}"
+printf '%s\n' "${MARKER} checking if ${MSU_MAN} is in \${MANPATH}"
 if [ -f "${BASHRC}" ] && grep -F -q "${EXPORT_MAN_PATH}" "${BASHRC}" ; then
   : # already added to ${BASHRC} by a previous run
 elif grep "${MSU_MAN}" <<< "${MANPATH:-}" > /dev/null ; then
   : # already in \${MANPATH}
 else
-  echo "${MARKER} ${MSU_MAN} not in manpath. Adding it to ${BASHRC}."
-  echo "${MARKER} !! You need to restart your terminal for this to take effect!"
+  printf '%s\n' "${MARKER} ${MSU_MAN} not in manpath. Adding it to ${BASHRC}."
+  printf '%s\n' "${MARKER} !! You need to restart your terminal for this to take effect!"
   {
-    echo ""
-    echo "# added by msu"
-    echo "${EXPORT_MAN_PATH}"
+    printf '%s\n' ""
+    printf '%s\n' "# added by msu"
+    printf '%s\n' "${EXPORT_MAN_PATH}"
   } >> "${BASHRC}"
 fi
 
@@ -143,7 +143,7 @@ fi
 # there are cases where manpages are not generated yet
 if [ -f dist/docs/man/man1/msu.1 ] && [ -f dist/docs/man/man3/msu.3 ]
 then
-  echo "${MARKER} copying manpages"
+  printf '%s\n' "${MARKER} copying manpages"
   mkdir -p "${MSU_MAN}/man1" "${MSU_MAN}/man3"
   cp -r dist/docs/man/man1/*.1 "${MSU_MAN}/man1" || true
   cp -r dist/docs/man/man3/*.3 "${MSU_MAN}/man3" || true
@@ -154,50 +154,50 @@ fi
 # instead, the metadata is generated at release time
 if [ -d .git ]
 then
-  echo "${MARKER} generating metadata"
+  printf '%s\n' "${MARKER} generating metadata"
   MSU_BUILD_HASH=$(git rev-parse HEAD)
   MSU_BUILD_DATE=$(git show -s --format=%ci "${MSU_BUILD_HASH}")
   {
-    echo "MSU_BUILD_HASH='${MSU_BUILD_HASH}'"
-    echo "MSU_BUILD_DATE='${MSU_BUILD_DATE}'"
+    printf '%s\n' "MSU_BUILD_HASH='${MSU_BUILD_HASH}'"
+    printf '%s\n' "MSU_BUILD_DATE='${MSU_BUILD_DATE}'"
   } >> "${MSU_LIB}"/metadata.sh
 fi
 
 
-echo "${MARKER} linking executable"
+printf '%s\n' "${MARKER} linking executable"
 mkdir -p "$(dirname "${MSU_EXE}")"
 rm -f "${MSU_EXE}"
 ln -sf "${MSU_LIB}"/msu.sh "${MSU_EXE}"
 
 
 if [ -n "${PREVIOUS_LOAD_STRING}" ] && [ "${PREVIOUS_LOAD_STRING}" != "${MSU_INSTALL_LOAD_STRING}" ] ; then
-  echo "${MARKER} removing outdated loader string from ${BASHRC}"
+  printf '%s\n' "${MARKER} removing outdated loader string from ${BASHRC}"
   remove_bashrc_lines "${PREVIOUS_LOAD_STRING}"
 fi
 
 
-echo "${MARKER} make bash load msu into environment on start"
+printf '%s\n' "${MARKER} make bash load msu into environment on start"
 grep "${MSU_INSTALL_LOAD_STRING}" "${BASHRC}" > /dev/null || {
   {
-    echo ""
-    echo "${MSU_INSTALL_LOAD_STRING}"
+    printf '%s\n' ""
+    printf '%s\n' "${MSU_INSTALL_LOAD_STRING}"
   } >> "${BASHRC}"
 }
 
 
-echo "${MARKER} storing installation configuration"
+printf '%s\n' "${MARKER} storing installation configuration"
 {
-  echo "MSU_INSTALL_LIB='${LIB}'"
-  echo "MSU_INSTALL_BIN='${BIN}'"
-  echo "MSU_INSTALL_MAN='${MAN}'"
-  echo "MSU_INSTALL_LOAD_STRING='${MSU_INSTALL_LOAD_STRING}'"
+  printf '%s\n' "MSU_INSTALL_LIB='${LIB}'"
+  printf '%s\n' "MSU_INSTALL_BIN='${BIN}'"
+  printf '%s\n' "MSU_INSTALL_MAN='${MAN}'"
+  printf '%s\n' "MSU_INSTALL_LOAD_STRING='${MSU_INSTALL_LOAD_STRING}'"
 } >> "${MSU_LIB}"/metadata.sh
 
 
 
-echo "${MARKER} finished installing"
-echo "${MARKER} !! Restart your terminal to load msu into environment"
+printf '%s\n' "${MARKER} finished installing"
+printf '%s\n' "${MARKER} !! Restart your terminal to load msu into environment"
 
-echo
+printf '\n'
 "${MSU_EXE}" version
-echo
+printf '\n'

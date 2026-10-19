@@ -8,7 +8,7 @@ set -e
 
 # release script is not supported on macos
 if [ "$(uname --kernel-name)" = "Darwin" ] ; then
-  echo "release script is not supported on macos" >&2
+  printf '%s\n' "release script is not supported on macos" >&2
   exit 1
 fi
 
@@ -53,8 +53,8 @@ log "generating metadata"
 MSU_BUILD_HASH=$(git rev-parse HEAD)
 MSU_BUILD_DATE=$(git show -s --format=%ci "${MSU_BUILD_HASH}")
 {
-  echo "MSU_BUILD_HASH='${MSU_BUILD_HASH}'"
-  echo "MSU_BUILD_DATE='${MSU_BUILD_DATE}'"
+  printf '%s\n' "MSU_BUILD_HASH='${MSU_BUILD_HASH}'"
+  printf '%s\n' "MSU_BUILD_DATE='${MSU_BUILD_DATE}'"
 } >> "${RELEASE_DIR}"/lib/metadata.sh
 
 
@@ -66,8 +66,8 @@ tar --create --gzip --file "${RELEASE_TARBALL}" "$(basename "${RELEASE_DIR}")"
 log "creating a new github release"
 RELEASE_MESSAGE="${RELEASE_DIR}/release-message.txt"
 {
-  echo "msu v${MSU_VERSION}"
-  echo
+  printf '%s\n' "msu v${MSU_VERSION}"
+  printf '\n'
   # body of the release is the message of the annotated tag
   git tag --list "${MSU_VERSION}" --format='%(contents)'
 } > "${RELEASE_MESSAGE}"

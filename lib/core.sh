@@ -9,7 +9,7 @@
 if [ ! "${MSU_LIB}" ]
 then
   # without this path, we can not do anything! We should exit now!
-  echo "error: core: library path not set '${MSU_LIB}'" > /dev/stderr
+  printf '%s\n' "error: core: library path not set '${MSU_LIB}'" > /dev/stderr
   exit 1
 fi
 
@@ -29,7 +29,7 @@ function msu__check_deps() {
   for cmd in ${DEPS}
   do
     command -v "${cmd}" > /dev/null 2>&1 || {
-      echo "warning: \`${cmd}' not found"
+      printf '%s\n' "warning: \`${cmd}' not found"
     }
   done
 }
@@ -89,7 +89,7 @@ function msu_require() {
       fi
       # shellcheck disable=SC1090
       source "${resolved_path}" || {
-        echo "error: msu_require: failed to load module '${1}'" > /dev/stderr
+        printf '%s\n' "error: msu_require: failed to load module '${1}'" > /dev/stderr
         exit 1
       }
       msu__check_deps
@@ -97,7 +97,7 @@ function msu_require() {
       return
   done
 
-  echo "error: msu_require: did not find module '${1}'" > /dev/stderr
+  printf '%s\n' "error: msu_require: did not find module '${1}'" > /dev/stderr
   exit 1
 }
 
@@ -124,7 +124,7 @@ function msu_run() {
   if [ "\$(type -t "${func}")" == 'function' ] ; then
     ${func} ${args[@]}
   else
-    echo "error: msu_run: can not find function '${func}'" > /dev/stderr
+    printf '%s\n' "error: msu_run: can not find function '${func}'" > /dev/stderr
     exit 1
   fi
 EOF

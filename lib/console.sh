@@ -36,7 +36,7 @@ function write_text() {
     ;;
   esac
   output="${title}${color}${text}${clr_reset:-''}"
-  echo -e "${output}" >> "${outfile}"
+  printf '%b\n' "${output}" >> "${outfile}"
 }
 
 
@@ -96,7 +96,7 @@ function ask() {
   then
     clear="${3}"
   fi
-  echo -e -n "    ${clr_white}${1}${clr_reset}  "
+  printf '%b' "    ${clr_white}${1}${clr_reset}  "
   if [ "${clear}" -eq 0 ]
   then
     read -r "${2}"
@@ -127,7 +127,7 @@ function ask() {
         fi
     done
     printf -v "${2}" '%s' "${password}"
-    echo
+    printf '\n'
   fi
 }
 

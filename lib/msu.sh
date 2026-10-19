@@ -22,11 +22,11 @@ msu_require "metadata"      # how you like me now?
 
 # warn user, if we are running as root/superuser.
 msu_run core_utils.is_superuser && {
-  echo
-  echo " !!         you are running as SUPERUSER        !! "
-  echo " !! with much power, comes great responsibility !! "
-  echo " !!           you have been WARNED!             !! "
-  echo
+  printf '\n'
+  printf '%s\n' " !!         you are running as SUPERUSER        !! "
+  printf '%s\n' " !! with much power, comes great responsibility !! "
+  printf '%s\n' " !!           you have been WARNED!             !! "
+  printf '\n'
 }
 
 
@@ -76,41 +76,41 @@ case "${1:-''}" in
       msu_run core_utils.show_help "${2}"
       msu_run core_utils.update_check
     else
-      echo
-      echo " msu by ${MSU_AUTHOR_NAME} <${MSU_AUTHOR_EMAIL}>"
-      echo
-      echo " usage:"
-      echo "    msu require|install|uninstall <mod>..."
-      echo "    msu execute <path> <arg>..."
-      echo "    msu install-many|uninstall-many <path>..."
-      echo "    msu run <mod>.<func>"
-      echo "    msu list"
-      echo "    msu upgrade [version]"
-      echo "    msu nuke"
-      echo "    msu version [mod]"
-      echo "    msu where <mod>"
-      echo "    msu help [mod]"
-      echo
-      echo " commands:"
-      echo "    h  | help            show help information of module [mod] or this help info"
-      echo "    i  | install         install the module(s) <mod>..."
-      echo "    im | install-many    install from module-list(s) at path(s) <path>..."
-      echo "    ls | list            list installed modules"
-      echo "    nk | nuke            nuke msu entirely"
-      echo "    r  | run             run the function <func> in module <mod>"
-      echo "    re | require         require the library module <mod>"
-      echo "    u  | uninstall       uninstall the module(s) <mod>..."
-      echo "    um | uninstall-many  uninstall from module-list(s) at path(s) <path>..."
-      echo "    up | upgrade         upgrade to the latest version"
-      echo "    v  | version         show version information of module [mod] or msu itself"
-      echo "    w  | where           show path to an external module"
-      echo "    x  | execute         execute file at the path <path>"
-      echo
-      echo " for more help information, see msu(1)"
-      echo
-      echo " see https://github.com/GochoMugo/msu/issues for bug reporting"
-      echo " and feature requests"
-      echo
+      printf '\n'
+      printf '%s\n' " msu by ${MSU_AUTHOR_NAME} <${MSU_AUTHOR_EMAIL}>"
+      printf '\n'
+      printf '%s\n' " usage:"
+      printf '%s\n' "    msu require|install|uninstall <mod>..."
+      printf '%s\n' "    msu execute <path> <arg>..."
+      printf '%s\n' "    msu install-many|uninstall-many <path>..."
+      printf '%s\n' "    msu run <mod>.<func>"
+      printf '%s\n' "    msu list"
+      printf '%s\n' "    msu upgrade [version]"
+      printf '%s\n' "    msu nuke"
+      printf '%s\n' "    msu version [mod]"
+      printf '%s\n' "    msu where <mod>"
+      printf '%s\n' "    msu help [mod]"
+      printf '\n'
+      printf '%s\n' " commands:"
+      printf '%s\n' "    h  | help            show help information of module [mod] or this help info"
+      printf '%s\n' "    i  | install         install the module(s) <mod>..."
+      printf '%s\n' "    im | install-many    install from module-list(s) at path(s) <path>..."
+      printf '%s\n' "    ls | list            list installed modules"
+      printf '%s\n' "    nk | nuke            nuke msu entirely"
+      printf '%s\n' "    r  | run             run the function <func> in module <mod>"
+      printf '%s\n' "    re | require         require the library module <mod>"
+      printf '%s\n' "    u  | uninstall       uninstall the module(s) <mod>..."
+      printf '%s\n' "    um | uninstall-many  uninstall from module-list(s) at path(s) <path>..."
+      printf '%s\n' "    up | upgrade         upgrade to the latest version"
+      printf '%s\n' "    v  | version         show version information of module [mod] or msu itself"
+      printf '%s\n' "    w  | where           show path to an external module"
+      printf '%s\n' "    x  | execute         execute file at the path <path>"
+      printf '\n'
+      printf '%s\n' " for more help information, see msu(1)"
+      printf '\n'
+      printf '%s\n' " see https://github.com/GochoMugo/msu/issues for bug reporting"
+      printf '%s\n' " and feature requests"
+      printf '\n'
       msu_run core_utils.update_check
     fi
   ;;
@@ -119,9 +119,9 @@ case "${1:-''}" in
     then
       msu_run core_utils.show_metadata "${2}"
     else
-      echo "  version   ${MSU_VERSION}"
-      echo "  build     ${MSU_BUILD_HASH:-?}"
-      echo "  date      ${MSU_BUILD_DATE:-?}"
+      printf '%s\n' "  version   ${MSU_VERSION}"
+      printf '%s\n' "  build     ${MSU_BUILD_HASH:-?}"
+      printf '%s\n' "  date      ${MSU_BUILD_DATE:-?}"
     fi
     msu_run core_utils.update_check
   ;;
