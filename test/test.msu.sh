@@ -96,8 +96,10 @@ EOF
 
 @test "msu used in a shebang sets strict mode options" {
   local script="${BATS_TEST_TMPDIR}/shebang-check.sh"
+  # use /usr/bin/env, since macos refuses a script as the shebang
+  # interpreter when referenced by absolute path
   {
-    printf '#!%s\n' "$(command -v msu)"
+    printf '#!/usr/bin/env msu\n'
     printf '%s\n' 'if set -o | grep -E "^(errexit|nounset|pipefail)" | grep -vq "on" ; then exit 1 ; fi'
   } > "${script}"
   chmod +x "${script}"
