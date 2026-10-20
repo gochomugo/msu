@@ -22,7 +22,7 @@ export MSU_EXTERNAL_LIB
 
 # Logs a warning for each missing command set in ${DEPS}.
 function msu__check_deps() {
-  if [ ! "${DEPS}" ]
+  if [ "${DEPS:-}" = "" ]
   then
     return
   fi

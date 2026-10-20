@@ -31,13 +31,13 @@ msu_require "metadata"      # how you like me now?
 
 
 # warn user, if we are running as root/superuser.
-msu_run core_utils.is_superuser && {
+if msu_run core_utils.is_superuser ; then
   printf '\n'
   printf '%s\n' " !!         you are running as SUPERUSER        !! "
   printf '%s\n' " !! with much power, comes great responsibility !! "
   printf '%s\n' " !!           you have been WARNED!             !! "
   printf '\n'
-}
+fi
 
 
 # parse command line arguments
@@ -71,19 +71,19 @@ case "${1:-''}" in
     msu_run core_utils.update_check
   ;;
   "up" | "upgrade" )
-    msu_run core_utils.upgrade "${2}"
+    msu_run core_utils.upgrade "${2:-}"
   ;;
   "ls" | "list" )
-    msu_run core_utils.list_modules "${2}"
+    msu_run core_utils.list_modules "${2:-}"
     msu_run core_utils.update_check
   ;;
   "nk" | "nuke" )
     msu_run core_utils.nuke
   ;;
   "h" | "help" )
-    if [ "${2}" ]
+    if [ "${2:-}" ]
     then
-      msu_run core_utils.show_help "${2}"
+      msu_run core_utils.show_help "${2:-}"
       msu_run core_utils.update_check
     else
       printf '\n'
@@ -125,9 +125,9 @@ case "${1:-''}" in
     fi
   ;;
   "v" | "version" )
-    if [ "${2}" ]
+    if [ "${2:-}" ]
     then
-      msu_run core_utils.show_metadata "${2}"
+      msu_run core_utils.show_metadata "${2:-}"
     else
       printf '%s\n' "  version   ${MSU_VERSION}"
       printf '%s\n' "  build     ${MSU_BUILD_HASH:-?}"
@@ -136,12 +136,12 @@ case "${1:-''}" in
     msu_run core_utils.update_check
   ;;
   "w" | "where" )
-    msu_run core_utils.where "${2}"
+    msu_run core_utils.where "${2:-}"
     msu_run core_utils.update_check
   ;;
   * )
     # maybe, we are being used in a shebang e.g. #!/usr/bin/env msu
-    if [ "${1}" ]
+    if [ "${1:-}" ]
     then
         FILE="$(readlink -f "${1}" 2> /dev/null)"
         if [ -r "${FILE}" ]
