@@ -9,7 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Added:
 
-* Added strict mode; enabled by default.
+* Added strict mode (`${MSU_STRICT_MODE}`); enabled by default.
+* Added execution tracing (`${MSU_DEBUG}`); disabled by default.
 
 Fixed:
 

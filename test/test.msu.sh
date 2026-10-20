@@ -94,6 +94,22 @@ EOF
 }
 
 
+@test "msu respects MSU_DEBUG=1 when executed directly" {
+  local script="${BATS_TEST_TMPDIR}/debug-check.sh"
+  printf '%s\n' 'if set -o | grep "^xtrace" | grep -vq "on" ; then exit 1 ; fi' > "${script}"
+  run env MSU_DEBUG=1 msu execute "${script}"
+  [ "${status}" -eq 0 ]
+}
+
+
+@test "msu does NOT set xtrace by default" {
+  local script="${BATS_TEST_TMPDIR}/debug-check.sh"
+  printf '%s\n' 'if set -o | grep "^xtrace" | grep -vq "off" ; then exit 1 ; fi' > "${script}"
+  run msu execute "${script}"
+  [ "${status}" -eq 0 ]
+}
+
+
 @test "msu used in a shebang sets strict mode options" {
   local script="${BATS_TEST_TMPDIR}/shebang-check.sh"
   # use /usr/bin/env, since macos refuses a script as the shebang

@@ -164,6 +164,16 @@ ENVIRONMENT VARIABLES
    > directly (e.g. `msu version`) or used in a shebang. See
    > the STRICT MODE section below.
 
+*`${MSU_DEBUG}`*
+
+   > Set to `1` to trace execution of msu, e.g.
+
+        $ MSU_DEBUG=1 msu version
+
+   > Tracing only happens when msu is executed directly or
+   > used in a shebang. It has no effect when msu is sourced
+   > (e.g. `. msu env`).
+
 
 ALIASES
 -------

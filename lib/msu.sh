@@ -14,6 +14,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ] && [ "${MSU_STRICT_MODE:-1}" != "0" ] ; then
   if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 2 ] ; } ; then
     shopt -s lastpipe # bash >= 4.2
   fi
+  if [ "${MSU_DEBUG:-0}" = "1" ] ; then
+    set -o xtrace
+  fi
 fi
 
 
