@@ -4,7 +4,17 @@
 # Copyright (c) 2015 GochoMugo <mugo@forfuture.co.ke>
 
 
-#set -e errexit
+if [ "${BASH_SOURCE[0]}" = "${0}" ] && [ "${MSU_STRICT_MODE:-1}" != "0" ] ; then
+  set -o errexit
+  set -o nounset
+  set -o pipefail
+  if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 4 ] ; } ; then
+    shopt -s inherit_errexit # bash >= 4.4
+  fi
+  if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 2 ] ; } ; then
+    shopt -s lastpipe # bash >= 4.2
+  fi
+fi
 
 
 MSU_EXE="${BASH_SOURCE[0]}"

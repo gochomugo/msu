@@ -46,6 +46,66 @@ setup() {
 }
 
 
+@test "command '. msu env' does NOT set strict mode options" {
+  local script
+  script=$(cat <<EOF
+. msu env
+if set -o | grep -E "^(errexit|nounset|pipefail)" | grep -vq "off" ; then
+  exit 1
+fi
+exit 0
+EOF
+  )
+  bash -c "${script}"
+}
+
+
+@test "msu executed directly sets strict mode options" {
+  local script="${BATS_TEST_TMPDIR}/strict-check.sh"
+  printf '%s\n' 'if set -o | grep -E "^(errexit|nounset|pipefail)" | grep -vq "on" ; then exit 1 ; fi' > "${script}"
+  cat >> "${script}" <<'EOF'
+if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 4 ] ; } ; then
+  shopt -q inherit_errexit || exit 1
+fi
+if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 2 ] ; } ; then
+  shopt -q lastpipe || exit 1
+fi
+exit 0
+EOF
+  run msu execute "${script}"
+  [ "${status}" -eq 0 ]
+}
+
+
+@test "msu respects MSU_STRICT_MODE=0 when executed directly" {
+  local script="${BATS_TEST_TMPDIR}/strict-check.sh"
+  printf '%s\n' 'if set -o | grep -E "^(errexit|nounset|pipefail)" | grep -vq "off" ; then exit 1 ; fi' > "${script}"
+  cat >> "${script}" <<'EOF'
+if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 4 ] ; } ; then
+  shopt -q inherit_errexit && exit 1
+fi
+if [ "${BASH_VERSINFO[0]}" -gt 4 ] || { [ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 2 ] ; } ; then
+  shopt -q lastpipe && exit 1
+fi
+exit 0
+EOF
+  run env MSU_STRICT_MODE=0 msu execute "${script}"
+  [ "${status}" -eq 0 ]
+}
+
+
+@test "msu used in a shebang sets strict mode options" {
+  local script="${BATS_TEST_TMPDIR}/shebang-check.sh"
+  {
+    printf '#!%s\n' "$(command -v msu)"
+    printf '%s\n' 'if set -o | grep -E "^(errexit|nounset|pipefail)" | grep -vq "on" ; then exit 1 ; fi'
+  } > "${script}"
+  chmod +x "${script}"
+  run "${script}"
+  [ "${status}" -eq 0 ]
+}
+
+
 @test "command 'msu require' loads a module" {
   [ "$(type -t success)" != "function" ]
   . msu require console

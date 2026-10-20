@@ -158,6 +158,12 @@ ENVIRONMENT VARIABLES
    > and *install-many* sub-commands. It defaults to
    > `${HOME}/.msu`.
 
+*`${MSU_STRICT_MODE}`*
+
+   > Set to `0` to disable strict mode when msu is executed
+   > directly (e.g. `msu version`) or used in a shebang. See
+   > the STRICT MODE section below.
+
 
 ALIASES
 -------
@@ -184,6 +190,23 @@ be '#!/usr/bin/env msu'. The shell script (using the shebang),
 would receive the path to itself as `${1}` and have the other
 arguments follow as normal, in `${2}`, `${3}`, ... This means
 that the script can accept command-line arguments.
+
+
+STRICT MODE
+-----------
+
+When msu is executed directly or used in a shebang, strict mode is
+enabled: `errexit`, `nounset` and `pipefail` are set, along with
+`inherit_errexit` and `lastpipe` on bash versions that support them
+(>= 4.4 and >= 4.2 respectively). This makes msu fail fast and
+loudly on errors.
+
+When msu is sourced (e.g. `. msu env` from `~/.bashrc`), strict
+mode is NOT set, to avoid leaking the options into your shell.
+
+Set `${MSU_STRICT_MODE}` to `0` to disable strict mode, e.g.
+
+    $ MSU_STRICT_MODE=0 msu execute script.sh
 
 
 CAVEATS

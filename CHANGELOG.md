@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+Added:
+
+* Added strict mode; enabled by default.
+
 Fixed:
 
 * Nuking msu should remove the load string from .bashrc.
