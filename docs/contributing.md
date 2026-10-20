@@ -33,6 +33,14 @@ $ make test.lint          # run linting tests
 $ make test.unit          # run unit tests
 ```
 
+Some tests use the network, e.g. to clone modules from
+github/gitlab/bitbucket. Set the environment variable
+`NO_NETWORK` to skip those tests:
+
+```bash
+$ NO_NETWORK=1 make test
+```
+
 
 ## docs
 

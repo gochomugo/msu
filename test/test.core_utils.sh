@@ -26,6 +26,15 @@ function mock_curl_for_upgrade() {
 }
 
 
+# Skips a test that requires network access, e.g. cloning modules
+# from a remote repository. Set NO_NETWORK=1 to run in its absence.
+function require_network() {
+  if [ -n "${NO_NETWORK:-}" ] ; then
+    skip "network usage disabled (NO_NETWORK is set)"
+  fi
+}
+
+
 function test_is_module_installed() {
   local status="${1}"
   local output="${2}"
@@ -148,6 +157,7 @@ function test_is_module_installed() {
 
 
 @test "\`install' installs from github/gitlab/bitbucket" {
+  require_network
   run install "BT:GochoMugo/msu-test"
   test_is_module_installed "${status}" "${output}" "msu-test"
   rm -rf "${MSU_EXTERNAL_LIB}"
@@ -186,6 +196,7 @@ function test_is_module_installed() {
 
 
 @test "\`install' supports versions (git tags)" {
+  require_network
   local samplemodule="GL:GochoMugo/msu-test#v0.0.0"
   run install "GL:GochoMugo/msu-test#v0.0.0"
   test_is_module_installed "${status}" "${output}" "msu-test"
@@ -195,6 +206,7 @@ function test_is_module_installed() {
 
 
 @test "\`install_from_list' installs from a list in a file" {
+  require_network
   local listpath="${BATS_TEST_TMPDIR}/list"
   echo "GH:GochoMugo/msu" > ${listpath}
   echo "GL:GochoMugo/msu-test" >> ${listpath}
@@ -264,6 +276,7 @@ function test_is_module_installed() {
 
 
 @test "\`install_from_list' supports -f/--force to force reinstall (git url)" {
+  require_network
   local listpath="${BATS_TEST_TMPDIR}/list"
   echo "GL:GochoMugo/msu-test#v0.0.0" > "${listpath}"
 
