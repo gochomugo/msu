@@ -270,6 +270,7 @@ function nuke() {
   local pattern_file="/tmp/nuke_msu.pattern.${RANDOM}"
   printf '%s\n' "${MSU_INSTALL_LOAD_STRING}" > "${pattern_file}"
   {
+    printf '%s\n' "trap 'rm -f \"${nuke_script}\" \"${pattern_file}\"' EXIT"
     printf '%s\n' "printf '%s\n' '- removing load string from ~/.bashrc'"
     printf '%s\n' "cp ~/.bashrc /tmp/bashrc.msu"
     printf '%s\n' "grep -v -F -x -f '${pattern_file}' /tmp/bashrc.msu > ~/.bashrc"
@@ -506,7 +507,13 @@ function upgrade() {
     fi
   }
 
-  pushd /tmp > /dev/null || return 1
+  local tmp_dir="/tmp/.msu.upgrade.$$"
+  rm -rf "${tmp_dir}"
+  mkdir -p "${tmp_dir}" || return 1
+  # shellcheck disable=SC2064
+  trap "rm -rf \"${tmp_dir}\"" EXIT
+  pushd "${tmp_dir}" > /dev/null || return 1
+
   curl --silent --location "https://github.com/GochoMugo/msu/releases/download/${version}/msu-${version}.tar.gz" --output "msu-${version}.tar.gz"
   tar xvf "msu-${version}.tar.gz" > /dev/null 2>&1
   pushd "msu-${version}" > /dev/null || {

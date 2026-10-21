@@ -23,12 +23,16 @@ fi
 
 
 BASHRC="${BASHRC:-${HOME}/.bashrc}"
+BASHRC_TMP_FILE="${BASHRC}.msu-migrate"
 BIN="${BIN:-${HOME}/bin}"
 MAN="${MAN:-${HOME}/share/man}"
 MSU_EXE="${BIN}/msu"
 MSU_MAN="${MAN}"
 EXPORT_MAN_PATH="export MANPATH=\"${MSU_MAN}\":\${MANPATH}"
 EXPORT_BIN_PATH="export PATH=\"${BIN}\":\${PATH}"
+
+
+trap 'rm -f "${BASHRC_TMP_FILE}" ; rm -rf "${MSU_LIB}".staging.*' EXIT
 
 
 function check_dep() {
@@ -81,7 +85,7 @@ function remove_bashrc_lines() {
       return
   fi
   local removees="${1}"
-  local tmp="${BASHRC}.msu-migrate"
+  local tmp="${BASHRC_TMP_FILE}"
   local line
   local removee
   local keep
