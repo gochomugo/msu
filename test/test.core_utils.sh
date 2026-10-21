@@ -16,6 +16,17 @@ function count_lines() {
 }
 
 
+# Extracts the body of the function ${2} (from its declaration line
+# up to the closing brace) from the file ${1}.
+function extract_function() {
+  awk '
+    $1 == "function" && $2 ~ "^" name "\(" { flag = 1 }
+    flag { print }
+    flag && $0 == "}" { exit }
+  ' name="${2}" "${1}"
+}
+
+
 function mock_curl_for_upgrade() {
   local bin="${BATS_TEST_TMPDIR}/bin"
   PATH="${bin}:${PATH}"
@@ -42,6 +53,40 @@ function test_is_module_installed() {
   [ "${status}" -eq 0 ]
   grep "${sym_tick} ${module_name}" <<< "${output}"
   [ -d "${MSU_EXTERNAL_LIB}/${module_name}" ]
+}
+
+
+@test "\`copy_dir_atomic' copies a directory" {
+  local src="${BATS_TEST_TMPDIR}/src"
+  local dst="${BATS_TEST_TMPDIR}/dst"
+  mkdir -p "${src}/nested"
+  printf '%s\n' "content" > "${src}/file"
+  printf '%s\n' "nested" > "${src}/nested/file"
+  copy_dir_atomic "${src}" "${dst}"
+  [ "$(cat "${dst}/file")" == "content" ]
+  [ "$(cat "${dst}/nested/file")" == "nested" ]
+  [ ! -d "${dst}.staging."* ]
+}
+
+
+@test "\`copy_dir_atomic' replaces the destination atomically" {
+  local src="${BATS_TEST_TMPDIR}/src"
+  local dst="${BATS_TEST_TMPDIR}/dst"
+  mkdir -p "${src}" "${dst}"
+  printf '%s\n' "old" > "${dst}/existing"
+  printf '%s\n' "new" > "${src}/file"
+  copy_dir_atomic "${src}" "${dst}"
+  [ ! -e "${dst}/existing" ]
+  [ "$(cat "${dst}/file")" == "new" ]
+}
+
+
+@test "\`copy_dir_atomic' in install.sh does NOT drift from the library" {
+  local in_install
+  local in_lib
+  in_install=$(extract_function install.sh copy_dir_atomic)
+  in_lib=$(extract_function lib/core_utils.sh copy_dir_atomic)
+  [ "${in_install}" == "${in_lib}" ]
 }
 
 

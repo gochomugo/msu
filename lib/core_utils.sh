@@ -19,6 +19,22 @@ msu_require "metadata"
 }
 
 
+# Copies a directory to a destination path, atomically. The copy is
+# performed into a staging directory, then swapped into place via
+# rename, so that a failure mid-copy leaves the destination as-is.
+#
+# ${1} - source directory
+# ${2} - destination path (replaced atomically)
+function copy_dir_atomic() {
+  local staging_dir="${2}.staging.$$"
+  rm -rf "${staging_dir}"
+  mkdir -p "$(dirname "${staging_dir}")"
+  cp -r "${1}" "${staging_dir}"
+  rm -rf "${2}"
+  mv "${staging_dir}" "${2}"
+}
+
+
 # Executes a command for each line in the specified file.
 # ${1}    - path to file
 # ${2}    - function to call for each line
@@ -153,7 +169,7 @@ function install() {
         rm -rf "${MSU_EXTERNAL_LIB:?}/${module_name}"
       fi
     fi
-    cp -r "${dir}" "${MSU_EXTERNAL_LIB}" > /dev/null
+    copy_dir_atomic "${dir}" "${MSU_EXTERNAL_LIB}/${module_name}"
     tick "${module_name}"
   done
 }

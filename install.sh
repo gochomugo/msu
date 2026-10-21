@@ -65,6 +65,17 @@ function check_deps() {
 }
 
 
+# COPIED verbatim from lib/core_utils.sh. Keep in sync!
+function copy_dir_atomic() {
+  local staging_dir="${2}.staging.$$"
+  rm -rf "${staging_dir}"
+  mkdir -p "$(dirname "${staging_dir}")"
+  cp -r "${1}" "${staging_dir}"
+  rm -rf "${2}"
+  mv "${staging_dir}" "${2}"
+}
+
+
 function remove_bashrc_lines() {
   if [ ! -f "${BASHRC}" ] ; then
       return
@@ -119,9 +130,7 @@ printf '%s\n' "${MARKER} copying library"
 [ "${MSU_EXE}" == "${MSU_LIB}" ] && {
   MSU_LIB="${MSU_LIB}-lib"
 }
-rm -rf "${MSU_LIB}"
-mkdir -p "${MSU_LIB}"
-cp -r lib/* "${MSU_LIB}"
+copy_dir_atomic lib "${MSU_LIB}"
 
 
 printf '%s\n' "${MARKER} checking if ${MSU_MAN} is in \${MANPATH}"
