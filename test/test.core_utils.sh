@@ -19,8 +19,10 @@ function count_lines() {
 # Extracts the body of the function ${2} (from its declaration line
 # up to the closing brace) from the file ${1}.
 function extract_function() {
+  # index() is used instead of a regex, since escaping "(" in a regex
+  # is not portable (e.g. bsd-awk errors on "\(")
   awk '
-    $1 == "function" && $2 ~ "^" name "\(" { flag = 1 }
+    $1 == "function" && index($2, name "(") == 1 { flag = 1 }
     flag { print }
     flag && $0 == "}" { exit }
   ' name="${2}" "${1}"
