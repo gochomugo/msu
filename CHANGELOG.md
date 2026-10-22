@@ -23,6 +23,7 @@ Fixed:
   as an error, instead of failing with a confusing git error.
 * Installing modules now returns a non-zero exit code when any
   module failed to install.
+* Concurrent upgrades are now prevented using a lock.
 
 
 ## [0.8.2][0.8.2] - 2026-10-17

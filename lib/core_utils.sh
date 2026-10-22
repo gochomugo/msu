@@ -513,6 +513,12 @@ function upgrade() {
   local version
   version="${1}"
 
+  local lock_dir="${TMPDIR:-/tmp}/.msu.upgrade.lock"
+  if ! mkdir "${lock_dir}" 2> /dev/null ; then
+    error "another upgrade appears to be in progress; if certain there is none, remove the directory ${lock_dir}"
+    return 3
+  fi
+
   LIB=${MSU_INSTALL_LIB:-$(dirname "${MSU_LIB}")}
   BIN=${MSU_INSTALL_BIN:-$(readlink -f "$(dirname "$(command -v msu)")")}
   MAN=${MSU_INSTALL_MAN}
@@ -539,11 +545,10 @@ function upgrade() {
     fi
   }
 
-  local tmp_dir="/tmp/.msu.upgrade.$$"
-  rm -rf "${tmp_dir}"
-  mkdir -p "${tmp_dir}" || return 1
+  local tmp_dir="${TMPDIR:-/tmp}/.msu.upgrade.$$"
   # shellcheck disable=SC2064
-  trap "rm -rf \"${tmp_dir}\"" EXIT
+  trap "rm -rf \"${tmp_dir}\" \"${lock_dir}\"" EXIT
+  mkdir -p "${tmp_dir}" || return 1
   pushd "${tmp_dir}" > /dev/null || return 1
 
   curl --silent --fail --location "https://github.com/GochoMugo/msu/releases/download/${version}/msu-${version}.tar.gz" --output "msu-${version}.tar.gz" || {

@@ -760,6 +760,66 @@ EOF
   grep "checksum file is empty" <<< "${output}"
 }
 
+# Builds a release tarball fixture (with an inert install.sh) plus its
+# sha256 checksum file, then mocks curl to serve them locally.
+function mock_curl_for_upgrade_fixture() {
+  local fixture_root="${BATS_TEST_TMPDIR}/fixture"
+  local bin="${BATS_TEST_TMPDIR}/bin"
+  mkdir -p "${fixture_root}/msu-0.9.0/lib" "${bin}"
+  printf '%s\n' '#!/usr/bin/env bash' 'exit 0' > "${fixture_root}/msu-0.9.0/install.sh"
+  # shellcheck disable=SC2164
+  pushd "${fixture_root}" > /dev/null
+  tar --create --gzip --file "msu-0.9.0.tar.gz" "msu-0.9.0"
+  popd > /dev/null
+  printf '%s  %s\n' "$(sha256_file "${fixture_root}/msu-0.9.0.tar.gz")" "msu-0.9.0.tar.gz" \
+    > "${fixture_root}/msu-0.9.0.tar.gz.sha256"
+  {
+    printf '%s\n' '#!/usr/bin/env bash'
+    printf '%s\n' 'url=""; outfile=""; prev=""'
+    printf '%s\n' 'for arg in "${@}" ; do'
+    printf '%s\n' '  if [ "${prev}" = "--output" ] ; then outfile="${arg}" ; fi'
+    printf '%s\n' '  case "${arg}" in http* ) url="${arg}" ;; esac'
+    printf '%s\n' '  prev="${arg}"'
+    printf '%s\n' 'done'
+    printf '%s\n' 'case "${url}" in'
+    printf '%s\n' '  *.sha256 ) src="${FIXTURE}/msu-0.9.0.tar.gz.sha256" ;;'
+    printf '%s\n' '  *.tar.gz ) src="${FIXTURE}/msu-0.9.0.tar.gz" ;;'
+    printf '%s\n' 'esac'
+    printf '%s\n' 'cp "${src}" "${outfile}"'
+    printf '%s\n' 'touch "${MARKER}"'
+  } > "${bin}/curl"
+  chmod +x "${bin}/curl"
+  FIXTURE="${fixture_root}" MARKER="${BATS_TEST_TMPDIR}/curl_mocked"
+  export FIXTURE MARKER
+  touch "${bin}/msu"
+  chmod +x "${bin}/msu"
+}
+
+
+@test "\`upgrade' acquires and releases the upgrade lock" {
+  mock_curl_for_upgrade_fixture
+  PATH="${BATS_TEST_TMPDIR}/bin:${PATH}"
+  export MSU_INSTALL_LIB="${BATS_TEST_TMPDIR}/lib"
+  export MSU_INSTALL_BIN="${BATS_TEST_TMPDIR}"
+  # clean up any stale lock left behind by a previous run
+  rmdir "${TMPDIR:-/tmp}/.msu.upgrade.lock" 2> /dev/null || true
+  run upgrade "0.9.0"
+  [ "${status}" -eq 0 ]
+  [ -f "${BATS_TEST_TMPDIR}/curl_mocked" ]
+  [ ! -d "${TMPDIR:-/tmp}/.msu.upgrade.lock" ]
+}
+
+
+@test "\`upgrade' refuses to run concurrently" {
+  mkdir -p "${TMPDIR:-/tmp}/.msu.upgrade.lock"
+  run upgrade
+  [ "${status}" -eq 3 ]
+  grep "another upgrade appears to be in progress" <<< "${output}"
+  # the pre-existing lock is left intact
+  [ -d "${TMPDIR:-/tmp}/.msu.upgrade.lock" ]
+  rmdir "${TMPDIR:-/tmp}/.msu.upgrade.lock"
+}
+
 
 @test "\`where' prints installation path of module" {
   # installed module

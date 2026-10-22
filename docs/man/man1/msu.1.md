@@ -127,7 +127,10 @@ COMMANDS
    > upgrades to the latest version. This request may hit the
    > network to check for new versions and execute downloads if
    > necessary. The downloaded tarball is verified against its
-   > sha256 checksum before it is used.
+   > sha256 checksum before it is used. Concurrent upgrades are
+   > prevented using a lock directory at '${TMPDIR}/.msu.upgrade.lock';
+   > the lock is released when the upgrade ends, successfully or
+   > not. Upgrade failures leave the existing installation intact.
 
 *v, version* ['MODULE']
 
