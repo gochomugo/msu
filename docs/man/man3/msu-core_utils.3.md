@@ -72,6 +72,18 @@ DESCRIPTION
 
    > List installed external modules.
 
+*sha256_file('FILE')*
+
+   > Prints the sha256 checksum of the file 'FILE' to stdout.
+   > Uses `sha256sum` when available, falling back to `shasum`.
+   > Returns 1 if no sha256 tool is found.
+
+*verify_checksum('FILE', 'CHECKSUM_FILE')*
+
+   > Verifies that the file 'FILE' matches the checksum recorded
+   > in the checksum file 'CHECKSUM_FILE'. Returns 0 for a match
+   > and 1 on mismatch, missing or malformed checksum file.
+
 *where('MODULE')*
 
    > Echoes the installation path of the external module 'MODULE'.

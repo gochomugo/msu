@@ -12,6 +12,8 @@ Added:
 * Added strict mode (`${MSU_STRICT_MODE}`); enabled by default.
 * Added execution tracing (`${MSU_DEBUG}`); disabled by default.
 * Added support for concurrent installs of modules.
+* Release tarballs are now shipped with a sha256 checksum file,
+  used during upgrades to verify the downloaded tarball.
 
 Fixed:
 

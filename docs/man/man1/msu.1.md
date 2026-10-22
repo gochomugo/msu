@@ -126,7 +126,8 @@ COMMANDS
    > Upgrades msu to the version 'VERSION', if passed. Otherwise
    > upgrades to the latest version. This request may hit the
    > network to check for new versions and execute downloads if
-   > necessary.
+   > necessary. The downloaded tarball is verified against its
+   > sha256 checksum before it is used.
 
 *v, version* ['MODULE']
 
@@ -226,6 +227,23 @@ The commands *install*, *install-many* and *upgrade* use git for
 cloning repositories and generating module metadata. Therefore, the
 command git(1) must be available.
 
+
+UPGRADE INTEGRITY
+-----------------
+
+The tarball downloaded by *upgrade* is verified against the sha256
+checksum published alongside the release (msu-x.y.z.tar.gz.sha256),
+before it is used.
+
+The TRUST BOUNDARY is the msu GitHub repository
+(https://github.com/GochoMugo/msu) and anyone able to create or
+modify a release in it. The checksum file is unsigned and taken
+from the same source as the tarball, with which it shares the
+trust. For this reason, verification protects against corrupted,
+truncated or MANIPULATED-IN-TRANSIT downloads (e.g. through
+proxies or mirrors), NOT against an attacker who can modify the
+release itself. msu does not sign releases, since signing secrets
+should not be entrusted to disk images and CI runners.
 
 
 RESOURCES

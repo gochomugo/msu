@@ -478,6 +478,15 @@ function test_is_module_installed() {
 }
 
 
+@test "\`sha256_file' computes the checksum of a file" {
+  local file="${BATS_TEST_TMPDIR}/tampered"
+  printf '%s\n' "data" > "${file}"
+  local expected
+  expected="$(sha256sum "${file}" | awk '{print $1}')"
+  [ "$(sha256_file "${file}")" == "${expected}" ]
+}
+
+
 @test "\`show_help' shows help for a module" {
   local sample_module="${MSU_EXTERNAL_LIB}/mod"
   mkdir -p "${sample_module}"
@@ -707,6 +716,48 @@ EOF
 
 @test "\`upgrade' upgrades to latest version" {
   skip "Upgrading is untested for now"
+}
+
+
+@test "\`verify_checksum' accepts a matching file" {
+  local file="${BATS_TEST_TMPDIR}/tarball"
+  local shafile="${BATS_TEST_TMPDIR}/tarball.sha256"
+  printf '%s\n' "data" > "${file}"
+  printf '%s  %s\n' "$(sha256_file "${file}")" "tarball" > "${shafile}"
+  run verify_checksum "${file}" "${shafile}"
+  [ "${status}" -eq 0 ]
+}
+
+
+@test "\`verify_checksum' rejects a tampered file" {
+  local file="${BATS_TEST_TMPDIR}/tarball"
+  local shafile
+  printf '%s\n' "original" > "${file}"
+  printf '%s  %s\n' "$(sha256_file "${file}")" "tarball" > "${file}.sha256"
+  printf '%s\n' "tampered" > "${file}"
+  run verify_checksum "${file}" "${file}.sha256"
+  [ "${status}" -eq 1 ]
+  grep "checksum mismatch" <<< "${output}"
+}
+
+
+@test "\`verify_checksum' fails when the checksum file is missing" {
+  local file="${BATS_TEST_TMPDIR}/tarball"
+  printf '%s\n' "data" > "${file}"
+  run verify_checksum "${file}" "${BATS_TEST_TMPDIR}/none.sha256"
+  [ "${status}" -eq 1 ]
+  grep "checksum file not found" <<< "${output}"
+}
+
+
+@test "\`verify_checksum' fails when the checksum file is empty" {
+  local file="${BATS_TEST_TMPDIR}/tarball"
+  local shafile="${BATS_TEST_TMPDIR}/tarball.sha256"
+  printf '%s\n' "data" > "${file}"
+  : > "${shafile}"
+  run verify_checksum "${file}" "${shafile}"
+  [ "${status}" -eq 1 ]
+  grep "checksum file is empty" <<< "${output}"
 }
 
 

@@ -61,6 +61,15 @@ MSU_BUILD_DATE=$(git show -s --format=%ci "${MSU_BUILD_HASH}")
 log "creating a tarball of the release"
 pushd "$(dirname "${RELEASE_DIR}")" > /dev/null
 tar --create --gzip --file "${RELEASE_TARBALL}" "$(basename "${RELEASE_DIR}")"
+popd > /dev/null
+
+
+log "generating a checksum for the release tarball"
+{
+  # shellcheck disable=SC2164
+  cd "$(dirname "${RELEASE_TARBALL}")"
+  sha256sum "$(basename "${RELEASE_TARBALL}")"
+} > "${RELEASE_TARBALL}.sha256"
 
 
 log "creating a new github release"
@@ -73,6 +82,7 @@ RELEASE_MESSAGE="${RELEASE_DIR}/release-message.txt"
 } > "${RELEASE_MESSAGE}"
 hub release create \
   --attach "${RELEASE_TARBALL}" \
+  --attach "${RELEASE_TARBALL}.sha256" \
   --file "${RELEASE_MESSAGE}" \
   "${MSU_VERSION}"
 
