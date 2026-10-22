@@ -231,6 +231,47 @@ function test_is_module_installed() {
 }
 
 
+@test "\`install' errors on unknown remote mark" {
+  run install "zz:user/repo"
+  [ "${status}" -eq 1 ]
+  grep "unknown remote mark: zz" <<< "${output}"
+  [ ! -d "${MSU_EXTERNAL_LIB}/repo" ]
+}
+
+
+@test "\`install' returns 1 if any module failed to install" {
+  run install "zz:user/repo" "zz:other/repo"
+  [ "${status}" -eq 1 ]
+  [ "$(grep -c "unknown remote mark: zz" <<< "${output}")" -eq 2 ]
+}
+
+
+@test "\`install' restores working directory after a failed clone" {
+  local real_git
+  real_git="$(command -v git)"
+  local bin="${BATS_TEST_TMPDIR}/bin"
+  mkdir -p "${bin}"
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'if [ "${1}" = clone ] ; then' \
+    '  exit 1' \
+    'fi' \
+    "exec \"${real_git}\" \"\${@}\"" > "${bin}/git"
+  chmod +x "${bin}/git"
+  PATH="${bin}:${PATH}"
+
+  pushd "${BATS_TEST_TMPDIR}" > /dev/null
+  mkdir -p mod-rel
+  # the local module is referenced relative to the working directory
+  run install "gh:nonexistent/repo" "mod-rel"
+  popd > /dev/null
+  [ "${status}" -eq 1 ]
+  grep "${sym_cross} nonexistent/repo" <<< "${output}"
+  grep "${sym_tick} mod-rel" <<< "${output}"
+  [ -d "${MSU_EXTERNAL_LIB}/mod-rel" ]
+}
+
+
 @test "\`install' supports . as local path" {
   local mod="${BATS_TEST_TMPDIR}/mod"
   mkdir -p "${mod}"

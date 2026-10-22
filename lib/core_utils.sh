@@ -107,6 +107,8 @@ function install() {
   done
 
   mkdir -p "${MSU_EXTERNAL_LIB}"
+  local failed
+  local tmpdir=''
   for dir in "${modules[@]}" ; do
     local module_name
     local remote_mark
@@ -114,11 +116,9 @@ function install() {
     remote_mark=$(printf '%s\n' "${dir}" | grep -Eo "[a-zA-Z0-9]+:" | grep -Eo "[^:]*" || true)
     if [ "${remote_mark}" ] ; then
       # requires cloning
-      local tmpdir
       local shorthand
       local version
       local url
-      tmpdir="/tmp/.msu.clones"
       remote_mark=$(printf '%s\n' "${remote_mark}" | tr '[:upper:]' '[:lower:]')
       shorthand="${dir##*:}"
       version="${shorthand##*#}"
@@ -146,17 +146,27 @@ function install() {
           url="git@gitlab.com:${shorthand}.git"
         ;;
       esac
-      rm -rf "${tmpdir}"
-      mkdir -p "${tmpdir}"
-      pushd "${tmpdir}" > /dev/null || return 1
-      git clone --branch="${version:-master}" --depth=1 --quiet "${url}"
-      if [ ! $? ]
-      then
+      if [ -z "${url:-}" ] ; then
+        error "unknown remote mark: ${remote_mark}"
         cross "${shorthand}"
+        failed=1
         continue
       fi
-      dir="${tmpdir}/$(ls)"
-      popd > /dev/null || return 1
+      if ! tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/msu-clone.XXXXXX")" ; then
+        error "could not create temporary directory"
+        cross "${shorthand}"
+        failed=1
+        continue
+      fi
+      if ! git clone --branch="${version:-master}" --depth=1 --quiet "${url}" "${tmpdir}/${shorthand##*/}" ; then
+        error "could not clone module: ${shorthand}"
+        cross "${shorthand}"
+        failed=1
+        rm -rf "${tmpdir}"
+        tmpdir=''
+        continue
+      fi
+      dir="${tmpdir}/${shorthand##*/}"
     fi
 
     dir="$(readlink -f "${dir}")"
@@ -171,7 +181,14 @@ function install() {
     fi
     copy_dir_atomic "${dir}" "${MSU_EXTERNAL_LIB}/${module_name}"
     tick "${module_name}"
+    if [ -n "${tmpdir:-}" ] ; then
+      rm -rf "${tmpdir}"
+      tmpdir=''
+    fi
   done
+  if [ -n "${failed:-}" ] ; then
+    return 1
+  fi
 }
 
 

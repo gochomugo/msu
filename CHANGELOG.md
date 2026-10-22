@@ -11,10 +11,16 @@ Added:
 
 * Added strict mode (`${MSU_STRICT_MODE}`); enabled by default.
 * Added execution tracing (`${MSU_DEBUG}`); disabled by default.
+* Added support for concurrent installs of modules.
 
 Fixed:
 
 * Nuking msu should remove the load string from .bashrc.
+* Installing modules leaves less clutter on disk, even on failure.
+* Installing a module using an unknown remote mark is now reported
+  as an error, instead of failing with a confusing git error.
+* Installing modules now returns a non-zero exit code when any
+  module failed to install.
 
 
 ## [0.8.2][0.8.2] - 2026-10-17
